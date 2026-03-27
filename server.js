@@ -5,12 +5,13 @@ import { spawn } from "child_process";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Start OpenClaw (FIXED COMMAND)
+// Start OpenClaw (FIXED)
 const openclaw = spawn("npx", [
   "openclaw",
   "gateway",
   "--port",
-  "18789"
+  "18789",
+  "--allow-unconfigured"
 ]);
 
 openclaw.stdout.on("data", (data) => {
@@ -19,10 +20,6 @@ openclaw.stdout.on("data", (data) => {
 
 openclaw.stderr.on("data", (data) => {
   console.error(`OpenClaw Error: ${data}`);
-});
-
-openclaw.on("close", (code) => {
-  console.log(`OpenClaw exited with code ${code}`);
 });
 
 // Wait before proxy
