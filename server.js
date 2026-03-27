@@ -5,12 +5,10 @@ import { spawn } from "child_process";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Start OpenClaw properly
+// Start OpenClaw (FIXED COMMAND)
 const openclaw = spawn("npx", [
   "openclaw",
   "gateway",
-  "--host",
-  "0.0.0.0",
   "--port",
   "18789"
 ]);
@@ -27,7 +25,7 @@ openclaw.on("close", (code) => {
   console.log(`OpenClaw exited with code ${code}`);
 });
 
-// Wait until OpenClaw starts
+// Wait before proxy
 setTimeout(() => {
   app.use(
     "/",
