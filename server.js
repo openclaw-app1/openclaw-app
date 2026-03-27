@@ -1,22 +1,38 @@
 import express from "express";
 import { createProxyMiddleware } from "http-proxy-middleware";
-import { exec } from "child_process";
+import { spawn } from "child_process";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Start OpenClaw internally
-exec("npx openclaw gateway --host 0.0.0.0 --port 18789", (err) => {
-  if (err) console.error("OpenClaw error:", err);
+// Start OpenClaw properly
+const openclaw = spawn("npx", [
+  "openclaw",
+  "gateway",
+  "--host",
+  "0.0.0.0",
+  "--port",
+  "18789"
+]);
+
+openclaw.stdout.on("data", (data) => {
+  console.log(`OpenClaw: ${data}`);
 });
 
-// Small delay to allow OpenClaw to start
+openclaw.stderr.on("data", (data) => {
+  console.error(`OpenClaw Error: ${data}`);
+});
+
+openclaw.on("close", (code) => {
+  console.log(`OpenClaw exited with code ${code}`);
+});
+
+// Wait until OpenClaw starts
 setTimeout(() => {
-  // Proxy all traffic to OpenClaw UI
   app.use(
     "/",
     createProxyMiddleware({
-      target: "http://localhost:18789",
+      target: "http://127.0.0.1:18789",
       changeOrigin: true
     })
   );
@@ -24,4 +40,4 @@ setTimeout(() => {
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
-}, 5000);
+}, 8000);
