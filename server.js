@@ -5,13 +5,14 @@ import { spawn } from "child_process";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Start OpenClaw
 const openclaw = spawn("npx", [
   "openclaw",
   "gateway",
   "--port",
   "18789",
-  "--allow-unconfigured"
+  "--allow-unconfigured",
+  "--model",
+  "google/gemini-1.5-flash"
 ]);
 
 openclaw.stdout.on("data", (data) => {
