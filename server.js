@@ -10,9 +10,7 @@ const openclaw = spawn("npx", [
   "gateway",
   "--port",
   "18789",
-  "--allow-unconfigured",
-  "--model",
-  "google/gemini-1.5-flash"
+  "--allow-unconfigured"
 ]);
 
 openclaw.stdout.on("data", (data) => {
