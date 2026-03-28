@@ -5,12 +5,10 @@ import { spawn } from "child_process";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const openclaw = spawn("npx", [
-  "openclaw",
-  "gateway",
-  "--port",
-  "18789",
-  "--allow-unconfigured"
+// 🔥 Reset OpenClaw config + start fresh (IMPORTANT FIX)
+const openclaw = spawn("bash", [
+  "-c",
+  "rm -rf /root/.openclaw && npx openclaw gateway --port 18789 --allow-unconfigured"
 ]);
 
 openclaw.stdout.on("data", (data) => {
@@ -21,7 +19,11 @@ openclaw.stderr.on("data", (data) => {
   console.error(`OpenClaw Error: ${data}`);
 });
 
-// Optional proxy (not needed for Telegram but safe)
+openclaw.on("close", (code) => {
+  console.log(`OpenClaw exited with code ${code}`);
+});
+
+// Optional proxy (not needed for Telegram but keeps service alive)
 setTimeout(() => {
   app.use(
     "/",
