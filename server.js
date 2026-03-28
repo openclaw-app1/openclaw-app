@@ -5,10 +5,15 @@ import { spawn } from "child_process";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 🔥 Reset OpenClaw config + start fresh (IMPORTANT FIX)
 const openclaw = spawn("bash", [
   "-c",
-  "rm -rf /root/.openclaw && npx openclaw gateway --port 18789 --allow-unconfigured"
+  `
+  rm -rf /root/.openclaw && 
+  export OPENCLAW_MODEL=google/gemini-1.5-flash &&
+  export OPENCLAW_PROVIDER=google &&
+  export GOOGLE_API_KEY=$GOOGLE_API_KEY &&
+  npx openclaw gateway --port 18789 --allow-unconfigured
+  `
 ]);
 
 openclaw.stdout.on("data", (data) => {
@@ -19,11 +24,6 @@ openclaw.stderr.on("data", (data) => {
   console.error(`OpenClaw Error: ${data}`);
 });
 
-openclaw.on("close", (code) => {
-  console.log(`OpenClaw exited with code ${code}`);
-});
-
-// Optional proxy (not needed for Telegram but keeps service alive)
 setTimeout(() => {
   app.use(
     "/",
