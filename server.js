@@ -1,11 +1,11 @@
 import express from "express";
 import { createProxyMiddleware } from "http-proxy-middleware";
-import { spawn } from "child_process";
+import { spawn, exec } from "child_process";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Start OpenClaw (FIXED)
+// 🔹 Start OpenClaw
 const openclaw = spawn("npx", [
   "openclaw",
   "gateway",
@@ -22,7 +22,20 @@ openclaw.stderr.on("data", (data) => {
   console.error(`OpenClaw Error: ${data}`);
 });
 
-// Wait before proxy
+// 🔹 Connect Telegram bot AFTER slight delay
+setTimeout(() => {
+  console.log("Connecting Telegram bot...");
+
+  exec("npx openclaw pairing approve telegram Hellojavisbot", (err, stdout, stderr) => {
+    if (err) {
+      console.error("Telegram pairing error:", err);
+      return;
+    }
+    console.log("Telegram pairing:", stdout);
+  });
+}, 12000);
+
+// 🔹 Proxy (optional, keep for health/UI)
 setTimeout(() => {
   app.use(
     "/",
